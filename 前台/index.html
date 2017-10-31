@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script src="http://code.jquery.com/jquery-latest.js"></script>
+    <style>
+        *{list-style: none}
+        li{
+            padding: 20px;border: 1px dashed #dddddd;
+            margin: 5px;}
+        span{
+            float: right;}
+    </style>
+</head>
+<body>
+<div id="message">
+    <h2>留言板</h2>
+    姓名：<input type="text" id="name">
+    内容：<input type="text" id="info">
+    <input type="submit" id="btn">
+</div>
+<div id="con">
+    <h2>留言板内容</h2>
+    <ul id="main">
+
+    </ul>
+</div>
+</body>
+<script>
+    $(function () {
+        data();
+        $("#btn").click(function () {
+            if($("#name").val()==""){
+                alert("请输入名字")
+            }else {
+                $.ajax({
+                    url:"http://localhost:3000/add",
+                    type:"POST",
+                    data:{sc:$("#name").val(),sx:$("#info").val()},
+                    success:function (e) {
+                        alert(e);
+                        $("#name").val("");
+                        $("#info").val("");
+                        data()
+                    }
+                })
+            }
+        })
+
+
+
+
+        function data() {
+            $.ajax({
+                url:"http://localhost:3000/list",
+                type:"get",
+                success:function (data) {
+                    console.log(data);
+                    var str="";
+                    for(i in data){
+                        str+=`<li>name: ${data[i].name}<br>con: ${data[i].message} <span data-id="${data[i].id}">删除</span></li>`
+                    }
+                    $("#main").html(str)
+                    $("span").click(function () {
+                        var id=$(this).attr("data-id");
+                        var _this=$(this)
+                        console.log(id)
+                        $.ajax({
+                            url:"http://localhost:3000/del",
+                            type:"POST",
+                            data:{id:id},
+                            success:function (data) {
+                                alert(data)
+                                _this.parent().remove()
+                            }
+                        })
+                    });
+                }
+            });
+        }
+    })
+</script>
+</html>
